@@ -1,0 +1,3 @@
+spring:
+  servlet.multipart.maxFileSize: 100Mb
+  servlet.multipart.maxRequestSize: 250Mb

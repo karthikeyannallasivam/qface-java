@@ -1,0 +1,106 @@
+AWSTemplateFormatVersion: 2010-09-09
+Transform:
+- AWS::Serverless-2016-10-31
+- AWS::CodeStar
+
+Parameters:
+  ProjectId:
+    Type: String
+    Description: AWS CodeStar projectID used to associate new resources to team members
+
+# Enable blue/green deployments using this Globals section. For instructions, see the AWS CodeStar User Guide:
+# https://docs.aws.amazon.com/codestar/latest/userguide/how-to-modify-serverless-project.html?icmpid=docs_acs_rm_tr
+#
+# Globals:
+#   Function:
+#     AutoPublishAlias: live
+#     DeploymentPreference:
+#       Enabled: true
+#       Type: Canary10Percent5Minutes
+
+Resources:
+  PostIndexImage:
+      Type: AWS::Serverless::Function
+      Properties:
+        CodeUri: target/HelloWorld-1.0.jar
+        Timeout: 30
+        MemorySize: 1024
+        Handler: com.aws.codestar.projecttemplates.handler.IndexHandler
+        Runtime: java8
+        Role:
+          Fn::ImportValue:
+            !Join ['-', [!Ref 'ProjectId', !Ref 'AWS::Region', 'LambdaTrustRole']]
+        Events:
+          PostEvent:
+            Type: Api
+            Properties:
+              Path: /index
+              Method: post
+  PostSearchImage:
+      Type: AWS::Serverless::Function
+      Properties:
+        CodeUri: target/HelloWorld-1.0.jar
+        Timeout: 30
+        MemorySize: 1024
+        Handler: com.aws.codestar.projecttemplates.handler.SearchHandler
+        Runtime: java8
+        Role:
+          Fn::ImportValue:
+            !Join ['-', [!Ref 'ProjectId', !Ref 'AWS::Region', 'LambdaTrustRole']]
+        Events:
+          PostEvent:
+            Type: Api
+            Properties:
+              Path: /search
+              Method: post
+  CreateCollection:
+        Type: AWS::Serverless::Function
+        Properties:
+          CodeUri: target/HelloWorld-1.0.jar
+          Timeout: 30
+          MemorySize: 1024
+          Handler: com.aws.codestar.projecttemplates.handler.CreateCollectionHandler
+          Runtime: java8
+          Role:
+            Fn::ImportValue:
+              !Join ['-', [!Ref 'ProjectId', !Ref 'AWS::Region', 'LambdaTrustRole']]
+          Events:
+            PostEvent:
+              Type: Api
+              Properties:
+                Path: /create-collection
+                Method: post
+  DeleteCollection:
+          Type: AWS::Serverless::Function
+          Properties:
+            CodeUri: target/HelloWorld-1.0.jar
+            Timeout: 30
+            MemorySize: 1024
+            Handler: com.aws.codestar.projecttemplates.handler.DeleteCollectionHandler
+            Runtime: java8
+            Role:
+              Fn::ImportValue:
+                !Join ['-', [!Ref 'ProjectId', !Ref 'AWS::Region', 'LambdaTrustRole']]
+            Events:
+              PostEvent:
+                Type: Api
+                Properties:
+                  Path: /delete-collection
+                  Method: post
+  CreateMember:
+          Type: AWS::Serverless::Function
+          Properties:
+            CodeUri: target/HelloWorld-1.0.jar
+            Timeout: 30
+            MemorySize: 1024
+            Handler: com.aws.codestar.projecttemplates.handler.CreateMemberHandler
+            Runtime: java8
+            Role:
+              Fn::ImportValue:
+                !Join ['-', [!Ref 'ProjectId', !Ref 'AWS::Region', 'LambdaTrustRole']]
+            Events:
+              PostEvent:
+                Type: Api
+                Properties:
+                  Path: /create-member
+                  Method: post
